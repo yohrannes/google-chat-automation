@@ -3,6 +3,7 @@ import re
 from dotenv import load_dotenv
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
@@ -52,18 +53,21 @@ def send_image_to_chat():
 
     credentials_path = os.path.join(home_dir, 'credentials-google-api.json')
     token_path = os.path.join(home_dir, 'token-google-api.json')
-    
-    if not os.path.exists(credentials_path):
-        print(f"Error: Credentials file not found at {credentials_path}")
-        return
-    
+
     creds = None
     if os.path.exists(token_path):
         creds = Credentials.from_authorized_user_file(token_path, SCOPES)
         
     if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
-        creds = flow.run_local_server(port=0)
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            if not os.path.exists(credentials_path):
+                print(f"Error: Credentials file not found at {credentials_path}")
+                return
+            flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
+            creds = flow.run_local_server(port=0)
+        
         with open(token_path, 'w') as token:
             token.write(creds.to_json())
 

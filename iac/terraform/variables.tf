@@ -13,5 +13,11 @@ variable "aws_profile" {
 variable "function_name" {
   description = "The name of the Lambda function."
   type        = string
-  default     = "coleta-uptimerobot"
+  default     = "gchat-auto"
+}
+
+variable "subnet-id" {
+  description = "The id of subnet"
+  type = string
+  default = "subnet-xxxx"
 }

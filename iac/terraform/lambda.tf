@@ -2,7 +2,7 @@ resource "aws_lambda_layer_version" "python_dependencies" {
   filename   = "${path.module}/lambda-layers/python-dependencies.zip"
   layer_name = "python-dependencies"
 
-  compatible_runtimes = ["python3.9"]
+  compatible_runtimes = ["python3.14.4"]
 
   depends_on = [null_resource.create_lambda_layer]
 }
@@ -26,15 +26,15 @@ resource "aws_lambda_function" "lambda-function" {
   filename      = "${path.module}/lambda-functions/lambda-function.zip"
   function_name = "${var.function_name}"
   description   = "Lambda function for ${var.function_name}"
-  handler       = "coleta-uptimerobot.lambda_handler"
+  handler       = "gchat-auto.lambda_handler"
   role          = module.iam_roles.lambda_role_arn
-  runtime       = "python3.9"
+  runtime       = "python3.14.4"
   timeout       = 900
   memory_size   = 1024
 
   vpc_config {
-    subnet_ids         = ["subnet-08626e5ac3132693f"]
-    security_group_ids = ["sg-0c102d9d64cdd9db9"]
+    subnet_ids         = ["subnet-xxxx"]## CHECK THIS
+    security_group_ids = ["sg-xxx"]## CHECK THIS
   }
 
   layers = [aws_lambda_layer_version.python_dependencies.arn]
@@ -43,12 +43,6 @@ resource "aws_lambda_function" "lambda-function" {
   
   publish = true
 }
-
-#resource "aws_lambda_provisioned_concurrency_config" "provisioned" {
-#  function_name                     = aws_lambda_function.lambda-function.function_name
-#  provisioned_concurrent_executions = 1
-#  qualifier                         = aws_lambda_function.lambda-function.version
-#}
 
 resource "aws_cloudwatch_event_target" "lambda_target" {
   rule      = module.event_bridge_triggers.cron_trigger_name

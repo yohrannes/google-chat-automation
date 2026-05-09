@@ -6,6 +6,6 @@ module "event_bridge_triggers" {
 
 module "iam_roles" {
   source        = "./modules/iam_roles"
-  aws_region    = "sa-east-1"
+  aws_region    = var.aws_region
   function_name = var.function_name
 }
